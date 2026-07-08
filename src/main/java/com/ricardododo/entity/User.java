@@ -25,7 +25,7 @@ public class User {
     @Column(nullable = false)
     private String roles = "ROLE_USER";
     @Column(nullable = false)
-    private boolean enable = true;
+    private boolean enabled = true;
     @CreationTimestamp //para que la fecha se ponga automaticamente
     private LocalDateTime createdAt;
 
