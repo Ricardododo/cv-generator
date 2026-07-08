@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -25,8 +26,9 @@ public class Curriculum {
     private String address;
     private String summary; //perfil profesional
     private String photoUrl; //una url donde esta la foto
+    @Column(name = "created_at", updatable = false)
     @CreationTimestamp
-    private String createdAt;
+    private LocalDateTime createdAt;
     @Column(nullable = false) //para que el usuario le ponga titulo
     private String cvName;
 
