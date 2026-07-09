@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CurriculumDto {
 
+    private Long id;
     private String cvName;
     private String fullName;
     private String jobTitle;

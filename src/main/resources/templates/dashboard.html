@@ -128,6 +128,9 @@
         <a class="navbar-brand" href="#"><i class="fas fa-file-alt me-2 text-primary"></i>CV Generator</a>
         <div class="d-flex align-items-center">
             <span class="me-3"><i class="fas fa-user-circle me-1"></i> usuario@email.com</span>
+            <a th:href="@{/my-cvs}" class="btn btn-outline-secondary btn-sm me-2">
+                <i class="fas fa-list me-1"></i>Mis CVs
+            </a>
             <form th:action="@{/logout}" method="post" class="d-inline">
                 <button type="submit" class="btn btn-outline-danger btn-sm">
                     <i class="fas fa-sign-out-alt me-1"></i>Cerrar sesión
@@ -146,7 +149,9 @@
                     <span><i class="fas fa-user me-2"></i>Datos personales</span>
                 </div>
                 <div class="card-body">
-                    <form id="cvForm" th:action="@{/save-cv}" method="post" enctype="multipart/form-data">
+                    <form id="cvForm" th:action="@{/save-cv}" th:object="${curriculumDto}" method="post" enctype="multipart/form-data">
+                        <!-- Campo oculto para el ID -->
+                        <input type="hidden" th:field="*{id}" />
                         <!-- Foto de perfil -->
                         <div class="text-center">
                             <div class="photo-upload mx-auto" id="photoUpload">
@@ -159,31 +164,31 @@
                         <!-- Campos personales -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold"><i class="fas fa-user me-1"></i>Nombre completo</label>
-                            <input type="text" class="form-control" name="fullName" placeholder="Ej: Juan Pérez" required>
+                            <input type="text" class="form-control" th:field="*{fullName}" placeholder="Ej: Juan Pérez" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold"><i class="fas fa-tag me-1"></i>Nombre del CV</label>
-                            <input type="text" class="form-control" name="cvName" placeholder="Ej: CV para desarrollador Java" required>
+                            <input type="text" class="form-control" th:field="*{cvName}" placeholder="Ej: CV para desarrollador Java" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold"><i class="fas fa-briefcase me-1"></i>Título profesional</label>
-                            <input type="text" class="form-control" name="jobTitle" placeholder="Ej: Desarrollador Full Stack">
+                            <input type="text" class="form-control" th:field="*{jobTitle}" placeholder="Ej: Desarrollador Full Stack">
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold"><i class="fas fa-envelope me-1"></i>Email</label>
-                            <input type="email" class="form-control" name="email" placeholder="ejemplo@email.com" required>
+                            <input type="email" class="form-control" th:field="*{email}" placeholder="ejemplo@email.com" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold"><i class="fas fa-phone me-1"></i>Teléfono</label>
-                            <input type="text" class="form-control" name="phone" placeholder="+34 600 000 000">
+                            <input type="text" class="form-control" th:field="*{phone}" placeholder="+34 600 000 000">
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold"><i class="fas fa-map-pin me-1"></i>Dirección</label>
-                            <input type="text" class="form-control" name="address" placeholder="Ciudad, País">
+                            <input type="text" class="form-control" th:field="*{address}" placeholder="Ciudad, País">
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold"><i class="fas fa-align-left me-1"></i>Resumen profesional</label>
-                            <textarea class="form-control" name="summary" rows="3" placeholder="Breve descripción de tu perfil..."></textarea>
+                            <textarea class="form-control" th:field="*{summary}" rows="3" placeholder="Breve descripción de tu perfil..."></textarea>
                         </div>
                     </form>
                 </div>
@@ -255,9 +260,6 @@
             <div class="action-buttons">
                 <button type="button" class="btn btn-success btn-lg" id="saveCVBtn">
                     <i class="fas fa-save me-2"></i>Guardar CV
-                </button>
-                <button type="button" class="btn btn-outline-secondary btn-lg" id="downloadPdfBtn" disabled>
-                    <i class="fas fa-file-pdf me-2"></i>Descargar PDF (próximamente)
                 </button>
             </div>
         </div>

@@ -33,13 +33,26 @@ public class CurriculumService {
      }
 
      //Guardar el cv
+     @Transactional
      public Curriculum saveCurriculum(CurriculumDto dto, String userEmail){
           //1. Buscar el usuario por email
           User user = userRepository.findByEmail(userEmail)
                   .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + userEmail));
 
-          //2. crear nueva entidad Curriculum
-          Curriculum curriculum = new Curriculum();
+          Curriculum curriculum;
+          //2. verificar si el cv tiene o no id
+         if (dto.getId() == null){
+             curriculum = new Curriculum();
+             curriculum.setUser(user);
+         }else{
+             curriculum = curriculumRepository.findByIdAndUser(dto.getId(), user)
+                     .orElseThrow(() -> new RuntimeException("CV no encontrado para este usuario"));
+
+             //limpiar listas antiguas para reemplazarlas (si cascade + orphanRemoval)
+             curriculum.getExperiences().clear();
+             curriculum.getEducations().clear();
+         }
+          //actualizar datos
           curriculum.setCvName(dto.getCvName());
           curriculum.setFullName(dto.getFullName());
           curriculum.setEmail(dto.getEmail());
@@ -48,7 +61,7 @@ public class CurriculumService {
           curriculum.setSummary(dto.getSummary());
           curriculum.setUser(user); //Asignar el usuario
 
-          //3. Procesar experiencias si existieran
+          //Procesar experiencias si existieran
           if(dto.getExperiences() != null) {
                List<Experience> experiences = dto.getExperiences().stream()
                        .map(expDto -> {
@@ -65,7 +78,7 @@ public class CurriculumService {
                        .collect(Collectors.toList());
                curriculum.setExperiences(experiences);
           }
-          //4. Procesar educaciones si existieran
+          //Procesar educaciones si existieran
           if(dto.getEducations() != null) {
                List<Education> educations = dto.getEducations().stream()
                        .map(eduDto -> {
@@ -80,7 +93,7 @@ public class CurriculumService {
                        .collect(Collectors.toList());
                curriculum.setEducations(educations);
           }
-          //5. Guardar curriculum (con cascade ALL, se guardan los dos exp y edu)
+          //Guardar curriculum (con cascade ALL, se guardan los dos exp y edu)
           return curriculumRepository.save(curriculum);
      }
 

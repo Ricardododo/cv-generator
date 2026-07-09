@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>CV - <span th:text="${curriculum.fullName}">Nombre</span></title>
+
+    <style>
+        /* ===== RESET Y CONFIGURACIÓN GENERAL ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            font-size: 11pt;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Contenedor principal del CV */
+        .cv-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dddddd;
+        }
+
+        /* ===== CABECERA ===== */
+        .cv-header {
+            background-color: #2c3e50;
+            color: #ffffff;
+            padding: 30px 30px 20px 30px;
+            text-align: center;
+        }
+
+        .cv-header h1 {
+            font-size: 24pt;
+            margin-bottom: 5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .cv-header .job-title {
+            font-size: 14pt;
+            font-weight: 300;
+            color: #ecf0f1;
+            margin-bottom: 10px;
+        }
+
+        .cv-header .cv-name {
+            font-size: 10pt;
+            color: #bdc3c7;
+            font-style: italic;
+        }
+
+        /* ===== LAYOUT DE DOS COLUMNAS (FLOAT) ===== */
+        .cv-row {
+            clear: both;
+            overflow: hidden; /* para contener los floats */
+        }
+
+        /* Columna izquierda (30%) */
+        .cv-sidebar {
+            float: left;
+            width: 30%;
+            background-color: #f8f9fa;
+            padding: 25px 20px;
+            min-height: 500px; /* para que visualmente se extienda */
+        }
+
+        /* Columna derecha (70%) */
+        .cv-main {
+            float: left;
+            width: 70%;
+            padding: 25px 30px;
+            min-height: 500px;
+            background-color: #ffffff;
+        }
+
+        /* Clearfix para evitar solapamientos */
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        /* ===== ESTILOS DE LA BARRA LATERAL ===== */
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+
+        .sidebar-section h3 {
+            font-size: 13pt;
+            font-weight: 700;
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 5px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-section p,
+        .sidebar-section li {
+            font-size: 10.5pt;
+            margin-bottom: 5px;
+            color: #34495e;
+        }
+
+        .sidebar-section .contact-item {
+            margin-bottom: 8px;
+        }
+        .sidebar-section .contact-item strong {
+            display: inline-block;
+            width: 70px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        /* Foto de perfil */
+        .profile-photo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-photo img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 4px solid #2c3e50;
+            object-fit: cover;
+        }
+        .profile-photo .no-photo {
+            display: inline-block;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background-color: #bdc3c7;
+            color: #7f8c8d;
+            line-height: 140px;
+            text-align: center;
+            font-size: 12pt;
+            border: 4px solid #2c3e50;
+        }
+
+        /* Habilidades (en línea) */
+        .skills-list {
+            list-style: none;
+            padding: 0;
+        }
+        .skills-list li {
+            display: inline-block;
+            background-color: #e9ecef;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin: 3px 4px 3px 0;
+            font-size: 9.5pt;
+            color: #2c3e50;
+        }
+
+        /* ===== ESTILOS DE LA COLUMNA PRINCIPAL ===== */
+        .main-section {
+            margin-bottom: 25px;
+        }
+
+        .main-section h2 {
+            font-size: 15pt;
+            font-weight: 700;
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .main-section .summary-text {
+            text-align: justify;
+            font-size: 11pt;
+            line-height: 1.6;
+        }
+
+        /* Entradas de experiencia y educación */
+        .entry {
+            margin-bottom: 20px;
+        }
+
+        .entry-header {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .entry-header .entry-title {
+            font-weight: 700;
+            font-size: 12pt;
+            color: #2c3e50;
+        }
+
+        .entry-header .entry-company {
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .entry-header .entry-date {
+            float: right;
+            font-size: 10pt;
+            color: #7f8c8d;
+            font-weight: 400;
+        }
+
+        .entry-description {
+            font-size: 10.5pt;
+            text-align: justify;
+            margin-top: 4px;
+            color: #444;
+        }
+
+        /* Ajuste para entradas sin fecha a la derecha */
+        .entry-header .entry-date {
+            float: right;
+        }
+        .entry-header {
+            overflow: hidden; /* para contener el float */
+        }
+
+        /* ===== PIE DE PÁGINA (opcional) ===== */
+        .cv-footer {
+            background-color: #f8f9fa;
+            padding: 10px 30px;
+            font-size: 9pt;
+            color: #95a5a6;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            clear: both;
+        }
+
+        /* ===== UTILIDADES ===== */
+        .text-muted {
+            color: #7f8c8d;
+        }
+        .mt-2 {
+            margin-top: 10px;
+        }
+        .mb-1 {
+            margin-bottom: 5px;
+        }
+        .word-wrap {
+            word-wrap: break-word;
+        }
+
+        /* ===== RESPONSIVE (no esencial para PDF, pero útil para previsualización) ===== */
+        @media print {
+            body {
+                padding: 0;
+                background: white;
+            }
+            .cv-container {
+                box-shadow: none;
+                border: none;
+            }
+        }
+
+        @media screen and (max-width: 700px) {
+            .cv-sidebar,
+            .cv-main {
+                float: none;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cv-container">
+
+    <!-- ===== CABECERA ===== -->
+    <header class="cv-header">
+        <h1 th:text="${curriculum.fullName}">Nombre Apellido</h1>
+        <div class="job-title" th:text="${curriculum.jobTitle}">Desarrollador Senior</div>
+        <div class="cv-name" th:text="'CV: ' + ${curriculum.cvName}">CV: Mi CV</div>
+        <div class="cv-name" th:text="'Creado: ' + ${#temporals.format(curriculum.createdAt, 'dd/MM/yyyy')}" th:if="${curriculum.createdAt != null}">Creado: 01/01/2025</div>
+    </header>
+
+    <!-- ===== CUERPO EN DOS COLUMNAS ===== -->
+    <div class="cv-row clearfix">
+
+        <!-- COLUMNA IZQUIERDA (30%) -->
+        <aside class="cv-sidebar">
+
+            <!-- Foto -->
+            <div class="profile-photo">
+                <img th:if="${curriculum.photoUrl != null and curriculum.photoUrl != ''}"
+                     th:src="${curriculum.photoUrl}"
+                     alt="Foto de perfil" />
+                <span th:if="${curriculum.photoUrl == null or curriculum.photoUrl == ''}"
+                      class="no-photo">Sin foto</span>
+            </div>
+
+            <!-- Datos personales -->
+            <div class="sidebar-section">
+                <h3>Contacto</h3>
+                <div class="contact-item"><strong>Email:</strong> <span th:text="${curriculum.email}">email@ejemplo.com</span></div>
+                <div class="contact-item"><strong>Teléfono:</strong> <span th:text="${curriculum.phone}">+34 600 000 000</span></div>
+                <div class="contact-item"><strong>Dirección:</strong> <span th:text="${curriculum.address}">C/ Ejemplo 1</span></div>
+            </div>
+
+            <!-- Habilidades (si las tienes)
+            <div class="sidebar-section" th:if="${curriculum.skills != null and !curriculum.skills.isEmpty()}">
+                <h3>Competencias</h3>
+                <ul class="skills-list">
+                    <li th:each="skill : ${curriculum.skills}" th:text="${skill.name}">Java</li>
+                </ul>
+            </div>
+            -->
+
+            <!-- Otros datos que quieras mostrar aquí -->
+            <!-- Por ejemplo: idiomas, certificaciones, etc. -->
+
+        </aside>
+
+        <!-- COLUMNA DERECHA (70%) -->
+        <main class="cv-main">
+
+            <!-- Resumen -->
+            <section class="main-section">
+                <h2>Perfil profesional</h2>
+                <div class="summary-text" th:text="${curriculum.summary}">
+                    Descripción del perfil profesional...
+                </div>
+            </section>
+
+            <!-- Experiencia laboral -->
+            <section class="main-section" th:if="${curriculum.experiences != null and !curriculum.experiences.isEmpty()}">
+                <h2>Experiencia laboral</h2>
+                <div class="entry" th:each="exp : ${curriculum.experiences}">
+                    <div class="entry-header">
+                        <span class="entry-title" th:text="${exp.position}">Puesto</span>
+                        <span class="entry-company" th:text="' | ' + ${exp.company}">Empresa</span>
+                        <span class="entry-date" th:text="${#temporals.format(exp.startDate, 'MM/yyyy')} + ' - ' + ${#temporals.format(exp.endDate, 'MM/yyyy')}" th:if="${exp.startDate != null and exp.endDate != null}">
+                            ene 2020 - dic 2022
+                        </span>
+                        <span class="entry-date" th:text="${#temporals.format(exp.startDate, 'MM/yyyy')} + ' - Actualidad'" th:if="${exp.startDate != null and exp.endDate == null}">
+                            ene 2020 - Actualidad
+                        </span>
+                    </div>
+                    <div class="entry-description" th:text="${exp.description}">
+                        Descripción de las funciones realizadas...
+                    </div>
+                </div>
+            </section>
+
+            <!-- Educación -->
+            <section class="main-section" th:if="${curriculum.educations != null and !curriculum.educations.isEmpty()}">
+                <h2>Formación académica</h2>
+                <div class="entry" th:each="edu : ${curriculum.educations}">
+                    <div class="entry-header">
+                        <span class="entry-title" th:text="${edu.degree}">Grado en Informática</span>
+                        <span class="entry-company" th:text="' | ' + ${edu.institution}">Universidad</span>
+                        <span class="entry-date" th:text="${edu.year}">2020</span>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ===== PIE DE PÁGINA ===== -->
+    <div class="cv-footer">
+        <span>CV generado desde cv-generator</span>
+        <span th:if="${curriculum.cvName}" th:text="' | ' + ${curriculum.cvName}"> | Mi CV</span>
+    </div>
+
+</div>
+
+</body>
+</html>

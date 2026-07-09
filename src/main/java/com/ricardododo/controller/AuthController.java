@@ -1,5 +1,6 @@
 package com.ricardododo.controller;
 
+import com.ricardododo.dto.CurriculumDto;
 import com.ricardododo.dto.UserRegistrationDto;
 import com.ricardododo.service.AuthService;
 import org.springframework.stereotype.Controller;
@@ -58,7 +59,8 @@ public class AuthController {
 
     //pagina de dashboard tras login exitoso
     @GetMapping("/dashboard")
-    public String dashboard(){
+    public String dashboard(Model model){
+        model.addAttribute("curriculumDto", new CurriculumDto());
         return "dashboard";
     }
 
