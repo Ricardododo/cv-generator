@@ -1,6 +1,8 @@
 package com.ricardododo.service;
 
 import com.ricardododo.dto.CurriculumDto;
+import com.ricardododo.dto.EducationDto;
+import com.ricardododo.dto.ExperienceDto;
 import com.ricardododo.entity.Curriculum;
 import com.ricardododo.entity.Education;
 import com.ricardododo.entity.Experience;
@@ -12,6 +14,7 @@ import com.ricardododo.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,6 +47,9 @@ public class CurriculumService {
          if (dto.getId() == null){
              curriculum = new Curriculum();
              curriculum.setUser(user);
+             //Inicializar listas de nuevo
+             curriculum.setExperiences(new ArrayList<>());
+             curriculum.setEducations(new ArrayList<>());
          }else{
              curriculum = curriculumRepository.findByIdAndUser(dto.getId(), user)
                      .orElseThrow(() -> new RuntimeException("CV no encontrado para este usuario"));
@@ -55,43 +61,36 @@ public class CurriculumService {
           //actualizar datos
           curriculum.setCvName(dto.getCvName());
           curriculum.setFullName(dto.getFullName());
+          curriculum.setJobTitle(dto.getJobTitle());
           curriculum.setEmail(dto.getEmail());
           curriculum.setPhone(dto.getPhone());
           curriculum.setAddress(dto.getAddress());
           curriculum.setSummary(dto.getSummary());
-          curriculum.setUser(user); //Asignar el usuario
+          curriculum.setPhotoUrl(dto.getPhotoUrl());
 
           //Procesar experiencias si existieran
           if(dto.getExperiences() != null) {
-               List<Experience> experiences = dto.getExperiences().stream()
-                       .map(expDto -> {
-                            Experience experience = new Experience();
-                            experience.setCompany(expDto.getCompany());
-                            experience.setPosition(expDto.getPosition());
-                            experience.setStartDate(expDto.getStartDate());
-                            experience.setEndDate(expDto.getEndDate());
-                            experience.setDescription(expDto.getDescription());
-                            experience.setCurriculum(curriculum); //relación bidireccional
-
-                            return experience;
-                       })
-                       .collect(Collectors.toList());
-               curriculum.setExperiences(experiences);
+               for (ExperienceDto expDto : dto.getExperiences()) {
+                   Experience experience = new Experience();
+                   experience.setCompany(expDto.getCompany());
+                   experience.setPosition(expDto.getPosition());
+                   experience.setStartDate(expDto.getStartDate());
+                   experience.setEndDate(expDto.getEndDate());
+                   experience.setDescription(expDto.getDescription());
+                   experience.setCurriculum(curriculum); //relación bidireccional
+                   curriculum.getExperiences().add(experience);
+               }
           }
           //Procesar educaciones si existieran
           if(dto.getEducations() != null) {
-               List<Education> educations = dto.getEducations().stream()
-                       .map(eduDto -> {
-                            Education education = new Education();
-                            education.setInstitution(eduDto.getInstitution());
-                            education.setDegree(eduDto.getDegree());
-                            education.setYear(eduDto.getYear());
-                            education.setCurriculum(curriculum); //relación bidireccional
-
-                            return education;
-                       })
-                       .collect(Collectors.toList());
-               curriculum.setEducations(educations);
+              for (EducationDto eduDto : dto.getEducations()) {
+                  Education education = new Education();
+                  education.setInstitution(eduDto.getInstitution());
+                  education.setDegree(eduDto.getDegree());
+                  education.setYear(eduDto.getYear());
+                  education.setCurriculum(curriculum); //relación bidireccional
+                  curriculum.getEducations().add(education);
+              }
           }
           //Guardar curriculum (con cascade ALL, se guardan los dos exp y edu)
           return curriculumRepository.save(curriculum);

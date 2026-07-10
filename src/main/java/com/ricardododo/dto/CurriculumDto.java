@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -21,6 +22,7 @@ public class CurriculumDto {
     private String summary;
     private String photoUrl;
 
-    List<ExperienceDto> experiences;
-    List<EducationDto> educations;
+    //Inicializar las listas para que Spring pueda mapear los campos
+    List<ExperienceDto> experiences =  new ArrayList<>();
+    List<EducationDto> educations = new ArrayList<>();
 }

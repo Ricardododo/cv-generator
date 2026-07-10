@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EducationDto {
 
+    private Long id;
     private String institution;
     private String degree;
     private String year;

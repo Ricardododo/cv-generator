@@ -6,6 +6,7 @@ import com.ricardododo.dto.EducationDto;
 import com.ricardododo.dto.ExperienceDto;
 import com.ricardododo.entity.Curriculum;
 import com.ricardododo.service.CurriculumService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,10 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -24,6 +23,7 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,16 +38,32 @@ public class CvController {
         this.curriculumService = curriculumService;
         this.templateEngine = templateEngine;
     }
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setAutoGrowCollectionLimit(100); // Permite que las listas crezcan
+    }
 
     @PostMapping("/save-cv")
     public String saveCV(@ModelAttribute ("curriculumDto") CurriculumDto dto,
                          Authentication auth,
-                         RedirectAttributes redirectAttributes) {
+                         RedirectAttributes redirectAttributes,
+                         HttpServletRequest request) {
+        // Imprime todos los parámetros recibidos
+        System.out.println("=== PARÁMETROS RECIBIDOS ===");
+        request.getParameterMap().forEach((key, value) -> {
+            System.out.println(key + " = " + Arrays.toString(value));
+        });
+        System.out.println("=============================");
+
+        System.out.println("DTO recibido: " + dto);
+        System.out.println("Experiencias: " + dto.getExperiences());
+        System.out.println("Educaciones: " + dto.getEducations());
         String userEmail = auth.getName();
         try {
             curriculumService.saveCurriculum(dto, userEmail);
             redirectAttributes.addFlashAttribute("success", "CV guardado correctamente.");
         } catch (Exception e) {
+            e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Error al guardar: " + e.getMessage());
         }
         return "redirect:/my-cvs";
@@ -69,6 +85,7 @@ public class CvController {
         //convertir a DTO
         CurriculumDto dto = convertToDto(curriculum); //metodo aux
         model.addAttribute("curriculumDto", dto);
+        System.out.println("JobTitle recuperado: " + curriculum.getJobTitle());
         return "dashboard"; //misma vista, pero con datos precargados
     }
     //metodo auxiliar de editCv
@@ -77,6 +94,7 @@ public class CvController {
         dto.setId(curriculum.getId());
         dto.setCvName(curriculum.getCvName());
         dto.setFullName(curriculum.getFullName());
+        dto.setJobTitle(curriculum.getJobTitle());
         dto.setEmail(curriculum.getEmail());
         dto.setPhone(curriculum.getPhone());
         dto.setAddress(curriculum.getAddress());
