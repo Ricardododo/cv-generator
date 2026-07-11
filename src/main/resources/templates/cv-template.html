@@ -3,9 +3,21 @@
 <head>
     <meta charset="UTF-8" />
     <title>CV - <span th:text="${curriculum.fullName}">Nombre</span></title>
-
     <style>
-        /* ===== RESET Y CONFIGURACIÓN GENERAL ===== */
+        /* ===== CONFIGURACIÓN DE MÁRGENES PARA EL PDF ===== */
+        @page {
+            margin: 0cm 0cm 0cm 0cm;
+            size: A4;
+        }
+
+        html, body {
+            background-color: #ffffff;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            -fs-color-adjust: exact !important;
+        }
+
+        /* ===== RESET ===== */
         * {
             margin: 0;
             padding: 0;
@@ -19,106 +31,112 @@
             font-size: 11pt;
             line-height: 1.5;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            /* height: 100%;  ELIMINADO */
         }
 
-        /* Contenedor principal del CV */
+        /* Contenedor principal */
         .cv-container {
             max-width: 1000px;
             margin: 0 auto;
             background-color: #ffffff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border: 1px solid #dddddd;
+            /* height: 100%; ELIMINADO */
+            page-break-inside: avoid;
+            page-break-after: avoid;
+            overflow: hidden;
         }
 
         /* ===== CABECERA ===== */
         .cv-header {
-            background-color: #2c3e50;
-            color: #ffffff;
-            padding: 30px 30px 20px 30px;
+            background-color: #2c3e50 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            -fs-color-adjust: exact !important;
+            color: #ffffff !important;
+            padding: 20px 30px 15px 30px;
             text-align: center;
+            min-height: 80px; /* NUEVO: fuerza el fondo */
+            display: block;
         }
 
         .cv-header h1 {
-            font-size: 24pt;
-            margin-bottom: 5px;
+            font-size: 22pt;
+            margin-bottom: 3px;
             font-weight: 700;
             letter-spacing: 1px;
+            color: #ffffff !important;
         }
 
         .cv-header .job-title {
-            font-size: 14pt;
+            font-size: 13pt;
             font-weight: 300;
             color: #ecf0f1;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            color: #ffffff !important;
         }
 
         .cv-header .cv-name {
-            font-size: 10pt;
+            font-size: 9pt;
             color: #bdc3c7;
             font-style: italic;
+            color: #ffffff !important;
         }
 
-        /* ===== LAYOUT DE DOS COLUMNAS (FLOAT) ===== */
+        /* ===== LAYOUT DE DOS COLUMNAS ===== */
         .cv-row {
-            clear: both;
-            overflow: hidden; /* para contener los floats */
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+            page-break-inside: avoid;
+            height: auto;
         }
 
-        /* Columna izquierda (30%) */
         .cv-sidebar {
-            float: left;
+            display: table-cell;
             width: 30%;
             background-color: #f8f9fa;
-            padding: 25px 20px;
-            min-height: 500px; /* para que visualmente se extienda */
+            padding: 15px 15px 15px 20px;
+            vertical-align: top;
         }
 
-        /* Columna derecha (70%) */
         .cv-main {
-            float: left;
+            display: table-cell;
             width: 70%;
-            padding: 25px 30px;
-            min-height: 500px;
+            padding: 15px 25px 15px 25px;
             background-color: #ffffff;
-        }
-
-        /* Clearfix para evitar solapamientos */
-        .clearfix::after {
-            content: "";
-            display: table;
-            clear: both;
+            vertical-align: top;
         }
 
         /* ===== ESTILOS DE LA BARRA LATERAL ===== */
         .sidebar-section {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
 
         .sidebar-section h3 {
-            font-size: 13pt;
+            font-size: 12pt;
             font-weight: 700;
             color: #2c3e50;
             border-bottom: 2px solid #2c3e50;
-            padding-bottom: 5px;
-            margin-bottom: 12px;
+            padding-bottom: 3px;
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .sidebar-section p,
         .sidebar-section li {
-            font-size: 10.5pt;
-            margin-bottom: 5px;
+            font-size: 10pt;
+            margin-bottom: 4px;
             color: #34495e;
         }
 
         .sidebar-section .contact-item {
-            margin-bottom: 8px;
+            margin-bottom: 5px;
         }
         .sidebar-section .contact-item strong {
             display: inline-block;
-            width: 70px;
+            width: 65px;
             font-weight: 600;
             color: #2c3e50;
         }
@@ -126,63 +144,65 @@
         /* Foto de perfil */
         .profile-photo {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .profile-photo img {
-            width: 140px;
-            height: 140px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             border: 4px solid #2c3e50;
             object-fit: cover;
         }
         .profile-photo .no-photo {
             display: inline-block;
-            width: 140px;
-            height: 140px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             background-color: #bdc3c7;
             color: #7f8c8d;
-            line-height: 140px;
+            line-height: 120px;
             text-align: center;
-            font-size: 12pt;
+            font-size: 11pt;
             border: 4px solid #2c3e50;
         }
 
         /* ===== ESTILOS DE LA COLUMNA PRINCIPAL ===== */
         .main-section {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
+            page-break-inside: avoid;
         }
 
         .main-section h2 {
-            font-size: 15pt;
+            font-size: 14pt;
             font-weight: 700;
             color: #2c3e50;
             border-bottom: 2px solid #2c3e50;
-            padding-bottom: 5px;
-            margin-bottom: 15px;
+            padding-bottom: 3px;
+            margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .main-section .summary-text {
             text-align: justify;
-            font-size: 11pt;
-            line-height: 1.6;
+            font-size: 10.5pt;
+            line-height: 1.5;
         }
 
         /* Entradas de experiencia y educación */
         .entry {
-            margin-bottom: 20px;
+            margin-bottom: 12px;
+            page-break-inside: avoid;
         }
 
         .entry-header {
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .entry-header .entry-title {
             font-weight: 700;
-            font-size: 12pt;
+            font-size: 11.5pt;
             color: #2c3e50;
         }
 
@@ -199,25 +219,21 @@
         }
 
         .entry-description {
-            font-size: 10.5pt;
+            font-size: 10pt;
             text-align: justify;
-            margin-top: 4px;
+            margin-top: 2px;
             color: #444;
         }
 
-        /* Ajuste para entradas sin fecha a la derecha */
-        .entry-header .entry-date {
-            float: right;
-        }
         .entry-header {
-            overflow: hidden; /* para contener el float */
+            overflow: hidden;
         }
 
-        /* ===== PIE DE PÁGINA (opcional) ===== */
+        /* ===== PIE DE PÁGINA ===== */
         .cv-footer {
             background-color: #f8f9fa;
-            padding: 10px 30px;
-            font-size: 9pt;
+            padding: 8px 30px;
+            font-size: 8.5pt;
             color: #95a5a6;
             text-align: center;
             border-top: 1px solid #ddd;
@@ -238,32 +254,15 @@
             word-wrap: break-word;
         }
 
-        /* ===== RESPONSIVE (no esencial para PDF, pero útil para previsualización) ===== */
-        @media print {
-            body {
-                padding: 0;
-                background: white;
-            }
-            .cv-container {
-                box-shadow: none;
-                border: none;
-            }
-        }
-
-        @media screen and (max-width: 700px) {
-            .cv-sidebar,
-            .cv-main {
-                float: none;
-                width: 100%;
-            }
+        .no-print {
+            display: none;
         }
     </style>
 </head>
 <body>
-
 <div class="cv-container">
 
-    <!-- ===== CABECERA ===== -->
+    <!-- CABECERA -->
     <header class="cv-header">
         <h1 th:text="${curriculum.fullName}">Nombre Apellido</h1>
         <div class="job-title" th:text="${curriculum.jobTitle}">Desarrollador Senior</div>
@@ -271,45 +270,37 @@
         <div class="cv-name" th:text="'Creado: ' + ${curriculum.createdAt}" th:if="${curriculum.createdAt != null}">Creado: 01/01/2025</div>
     </header>
 
-    <!-- ===== CUERPO EN DOS COLUMNAS ===== -->
-    <div class="cv-row clearfix">
+    <!-- CUERPO -->
+    <div class="cv-row">
 
-        <!-- COLUMNA IZQUIERDA (30%) -->
+        <!-- SIDEBAR -->
         <aside class="cv-sidebar">
-
             <!-- Foto -->
             <div class="profile-photo">
                 <img th:if="${curriculum.photoUrl != null and curriculum.photoUrl != ''}"
-                     th:src="${curriculum.photoUrl}"
-                     alt="Foto de perfil" />
+                     th:src="${curriculum.photoUrl}" alt="Foto" />
                 <span th:if="${curriculum.photoUrl == null or curriculum.photoUrl == ''}"
                       class="no-photo">Sin foto</span>
             </div>
 
-            <!-- Datos personales -->
+            <!-- Contacto -->
             <div class="sidebar-section">
                 <h3>Contacto</h3>
                 <div class="contact-item"><strong>Email:</strong> <span th:text="${curriculum.email}">email@ejemplo.com</span></div>
                 <div class="contact-item"><strong>Teléfono:</strong> <span th:text="${curriculum.phone}">+34 600 000 000</span></div>
                 <div class="contact-item"><strong>Dirección:</strong> <span th:text="${curriculum.address}">C/ Ejemplo 1</span></div>
             </div>
-
-            <!-- Nota: puedes añadir aquí más secciones, pero evita 'skills' si no existe -->
-
         </aside>
 
-        <!-- COLUMNA DERECHA (70%) -->
+        <!-- MAIN -->
         <main class="cv-main">
-
             <!-- Resumen -->
             <section class="main-section">
                 <h2>Perfil profesional</h2>
-                <div class="summary-text" th:text="${curriculum.summary}">
-                    Descripción del perfil profesional...
-                </div>
+                <div class="summary-text" th:text="${curriculum.summary}">Descripción del perfil profesional...</div>
             </section>
 
-            <!-- Experiencia laboral -->
+            <!-- Experiencia -->
             <section class="main-section" th:if="${curriculum.experiences != null and !curriculum.experiences.isEmpty()}">
                 <h2>Experiencia laboral</h2>
                 <div class="entry" th:each="exp : ${curriculum.experiences}">
@@ -317,15 +308,13 @@
                         <span class="entry-title" th:text="${exp.position}">Puesto</span>
                         <span class="entry-company" th:text="' | ' + ${exp.company}">Empresa</span>
                         <span class="entry-date" th:text="${exp.startDate} + ' - ' + ${exp.endDate}" th:if="${exp.startDate != null and exp.endDate != null}">
-                            ene 2020 - dic 2022
-                        </span>
+                                ene 2020 - dic 2022
+                            </span>
                         <span class="entry-date" th:text="${exp.startDate} + ' - Actualidad'" th:if="${exp.startDate != null and exp.endDate == null}">
-                            ene 2020 - Actualidad
-                        </span>
+                                ene 2020 - Actualidad
+                            </span>
                     </div>
-                    <div class="entry-description" th:text="${exp.description}">
-                        Descripción de las funciones realizadas...
-                    </div>
+                    <div class="entry-description" th:text="${exp.description}">Descripción...</div>
                 </div>
             </section>
 
@@ -334,23 +323,20 @@
                 <h2>Formación académica</h2>
                 <div class="entry" th:each="edu : ${curriculum.educations}">
                     <div class="entry-header">
-                        <span class="entry-title" th:text="${edu.degree}">Grado en Informática</span>
+                        <span class="entry-title" th:text="${edu.degree}">Grado</span>
                         <span class="entry-company" th:text="' | ' + ${edu.institution}">Universidad</span>
                         <span class="entry-date" th:text="${edu.year}">2020</span>
                     </div>
                 </div>
             </section>
-
         </main>
     </div>
 
-    <!-- ===== PIE DE PÁGINA ===== -->
+    <!-- PIE DE PÁGINA -->
     <div class="cv-footer">
         <span>CV generado desde cv-generator</span>
         <span th:if="${curriculum.cvName}" th:text="' | ' + ${curriculum.cvName}"> | Mi CV</span>
     </div>
-
 </div>
-
 </body>
 </html>

@@ -165,12 +165,14 @@ public class CvController {
         Context context = new Context();
         context.setVariable("curriculum", curriculum);
         String htmlContent = templateEngine.process("cv-template", context);
-        //convertir HTML a PDF usando Flying saucer
+        //de HTML a PDF usando Flying saucer
         ByteArrayOutputStream pdfStream =new ByteArrayOutputStream();
         ITextRenderer renderer = new ITextRenderer();
-
+        //URL para imágenes
         String baseUrl = "http://localhost:8080"; // En producción, obtener de properties
-        renderer.setDocumentFromString(htmlContent, baseUrl);
+        //System.out.println(htmlContent); // Muestra el HTML en la consola
+        renderer.setDocumentFromString(htmlContent, baseUrl); // SOLO UNA VEZ
+        //layout y creacion del PDF
         renderer.layout();
         renderer.createPDF(pdfStream);
 
