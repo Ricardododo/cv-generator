@@ -3,6 +3,7 @@ package com.ricardododo.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class CurriculumDto {
     private String address;
     private String summary;
     private String photoUrl;
+    private MultipartFile photoFile;
 
     //Inicializar las listas para que Spring pueda mapear los campos
     List<ExperienceDto> experiences =  new ArrayList<>();

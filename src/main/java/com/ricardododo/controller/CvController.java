@@ -6,7 +6,6 @@ import com.ricardododo.dto.EducationDto;
 import com.ricardododo.dto.ExperienceDto;
 import com.ricardododo.entity.Curriculum;
 import com.ricardododo.service.CurriculumService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -23,8 +23,11 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -44,20 +47,30 @@ public class CvController {
     }
 
     @PostMapping("/save-cv")
-    public String saveCV(@ModelAttribute ("curriculumDto") CurriculumDto dto,
+    public String saveCV(@ModelAttribute("curriculumDto") CurriculumDto dto,
                          Authentication auth,
-                         RedirectAttributes redirectAttributes,
-                         HttpServletRequest request) {
-        // Imprime todos los parámetros recibidos
-        System.out.println("=== PARÁMETROS RECIBIDOS ===");
-        request.getParameterMap().forEach((key, value) -> {
-            System.out.println(key + " = " + Arrays.toString(value));
-        });
-        System.out.println("=============================");
+                         RedirectAttributes redirectAttributes) throws IOException {
 
-        System.out.println("DTO recibido: " + dto);
-        System.out.println("Experiencias: " + dto.getExperiences());
-        System.out.println("Educaciones: " + dto.getEducations());
+        MultipartFile photoFile = dto.getPhotoFile();
+
+        if (photoFile != null && !photoFile.isEmpty()) {
+            String originalFilename = photoFile.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String filename = UUID.randomUUID().toString() + extension;
+
+            Path uploadPath = Paths.get(System.getProperty("user.dir"), "uploads");
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+            Path destinationFile = uploadPath.resolve(filename);
+            Files.write(destinationFile, photoFile.getBytes());
+
+            dto.setPhotoUrl("/uploads/" + filename);
+        }
+
         String userEmail = auth.getName();
         try {
             curriculumService.saveCurriculum(dto, userEmail);
@@ -99,6 +112,7 @@ public class CvController {
         dto.setPhone(curriculum.getPhone());
         dto.setAddress(curriculum.getAddress());
         dto.setSummary(curriculum.getSummary());
+        dto.setPhotoUrl(curriculum.getPhotoUrl());
         // Mapear listas
         if (curriculum.getExperiences() != null) {
             List<ExperienceDto> expDtos = curriculum.getExperiences().stream()
@@ -155,28 +169,40 @@ public class CvController {
         return "cv-template";
     }
 
+    //metodo auxiliar q construye la URL absoluta
+    private String buildPhotoUrl(String relativePath){
+        if (relativePath == null || relativePath.isEmpty()) {
+            return null;
+        }
+            //si ya es absoluta, no la modifica
+            if(relativePath.startsWith("http://") || relativePath.startsWith("https://")){
+                return relativePath;
+            }
+            //asumir que es relativa y se añade el baseurl
+            String baseUrl = "http://localhost:8080"; //obten esto de properties
+            return baseUrl + relativePath;
+    }
+
     @GetMapping("/download-pdf/{id}")
     public ResponseEntity<byte[]> downloadPDF(@PathVariable Long id, Authentication auth)
             throws DocumentException, IOException {
         String userEmail = auth.getName();
         Curriculum curriculum = curriculumService.getCurriculumByIdAndUser(id, userEmail)
                 .orElseThrow(() -> new RuntimeException("CV no encontrado"));
-         //Procesar la plantilla Thymeleaf
+
+        // Procesar la plantilla Thymeleaf
         Context context = new Context();
         context.setVariable("curriculum", curriculum);
         String htmlContent = templateEngine.process("cv-template", context);
-        //de HTML a PDF usando Flying saucer
-        ByteArrayOutputStream pdfStream =new ByteArrayOutputStream();
+
+        // Convertir HTML a PDF
+        ByteArrayOutputStream pdfStream = new ByteArrayOutputStream();
         ITextRenderer renderer = new ITextRenderer();
-        //URL para imágenes
-        String baseUrl = "http://localhost:8080"; // En producción, obtener de properties
-        //System.out.println(htmlContent); // Muestra el HTML en la consola
-        renderer.setDocumentFromString(htmlContent, baseUrl); // SOLO UNA VEZ
-        //layout y creacion del PDF
+        String baseUrl = "http://localhost:8080"; // Obtener de properties
+        renderer.setDocumentFromString(htmlContent, baseUrl);
         renderer.layout();
         renderer.createPDF(pdfStream);
 
-        // devolver el PDF como ResponseEntity
         byte[] pdfBytes = pdfStream.toByteArray();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
