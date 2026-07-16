@@ -169,26 +169,21 @@ public class CvController {
         return "cv-template";
     }
 
-    //metodo auxiliar q construye la URL absoluta
-    private String buildPhotoUrl(String relativePath){
-        if (relativePath == null || relativePath.isEmpty()) {
-            return null;
-        }
-            //si ya es absoluta, no la modifica
-            if(relativePath.startsWith("http://") || relativePath.startsWith("https://")){
-                return relativePath;
-            }
-            //asumir que es relativa y se añade el baseurl
-            String baseUrl = "http://localhost:8080"; //obten esto de properties
-            return baseUrl + relativePath;
-    }
-
     @GetMapping("/download-pdf/{id}")
     public ResponseEntity<byte[]> downloadPDF(@PathVariable Long id, Authentication auth)
             throws DocumentException, IOException {
         String userEmail = auth.getName();
         Curriculum curriculum = curriculumService.getCurriculumByIdAndUser(id, userEmail)
                 .orElseThrow(() -> new RuntimeException("CV no encontrado"));
+
+        // Resolver foto a ruta absoluta file:// para que Flying Saucer pueda cargarla
+        if (curriculum.getPhotoUrl() != null && !curriculum.getPhotoUrl().isEmpty()) {
+            String photoFilename = curriculum.getPhotoUrl().replace("/uploads/", "");
+            Path photoPath = Paths.get(System.getProperty("user.dir"), "uploads", photoFilename);
+            if (Files.exists(photoPath)) {
+                curriculum.setPhotoUrl(photoPath.toUri().toString());
+            }
+        }
 
         // Procesar la plantilla Thymeleaf
         Context context = new Context();
@@ -198,7 +193,7 @@ public class CvController {
         // Convertir HTML a PDF
         ByteArrayOutputStream pdfStream = new ByteArrayOutputStream();
         ITextRenderer renderer = new ITextRenderer();
-        String baseUrl = "http://localhost:8080"; // Obtener de properties
+        String baseUrl = Paths.get(System.getProperty("user.dir")).toUri().toString();
         renderer.setDocumentFromString(htmlContent, baseUrl);
         renderer.layout();
         renderer.createPDF(pdfStream);

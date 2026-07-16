@@ -133,12 +133,12 @@
 
         .sidebar-section .contact-item {
             margin-bottom: 5px;
+            word-wrap: break-word;
         }
         .sidebar-section .contact-item strong {
-            display: inline-block;
-            width: 65px;
             font-weight: 600;
             color: #2c3e50;
+            white-space: nowrap;
         }
 
         /* Foto de perfil */
@@ -168,7 +168,7 @@
 
         /* ===== ESTILOS DE LA COLUMNA PRINCIPAL ===== */
         .main-section {
-            margin-bottom: 15px;
+            margin-bottom: 25px;
             page-break-inside: avoid;
         }
 
@@ -266,8 +266,6 @@
     <header class="cv-header">
         <h1 th:text="${curriculum.fullName}">Nombre Apellido</h1>
         <div class="job-title" th:text="${curriculum.jobTitle}">Desarrollador Senior</div>
-        <div class="cv-name" th:text="'CV: ' + ${curriculum.cvName}">CV: Mi CV</div>
-        <div class="cv-name" th:text="'Creado: ' + ${curriculum.createdAt}" th:if="${curriculum.createdAt != null}">Creado: 01/01/2025</div>
     </header>
 
     <!-- CUERPO -->
