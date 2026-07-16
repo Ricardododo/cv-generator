@@ -32,6 +32,7 @@ public class Curriculum {
     private LocalDateTime createdAt;
     @Column(nullable = false) //para que el usuario le ponga titulo
     private String cvName;
+    private String templateName; // "basic", "modern", "minimalist"
 
     //Relaciones
     @ManyToOne(fetch = FetchType.LAZY)

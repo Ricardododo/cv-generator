@@ -1,6 +1,6 @@
 # CV Generator
 
-Aplicación web full-stack desarrollada con **Spring Boot 4.1.0** que permite a los usuarios crear, editar, previsualizar y descargar en PDF sus currículums vitae de forma profesional.
+Aplicación web full-stack desarrollada con **Spring Boot 4.1.0** que permite a los usuarios crear, editar, previsualizar y descargar en PDF sus currículums vitae de forma profesional, con **3 plantillas de diseño** diferentes.
 
 <!-- PROJECT SHIELDS -->
 ![Java](https://img.shields.io/badge/Java-17-orange?style=flat&logo=openjdk&logoColor=white)
@@ -16,8 +16,16 @@ Aplicación web full-stack desarrollada con **Spring Boot 4.1.0** que permite a 
 ### Editor de CV (Dashboard)
 ![Dashboard - Editor de CV](docs/images/dashboard.png)
 
-### Vista Previa del CV Generado
-![Vista Previa del CV](docs/images/cv-preview.png)
+### Plantillas de CV Generadas
+
+#### Basic
+![CV Basic](docs/images/cv-basic.png)
+
+#### Moderna
+![CV Moderno](docs/images/cv-modern.png)
+
+#### Minimalista
+![CV Minimalista](docs/images/cv-minimalist.png)
 
 ---
 
@@ -26,10 +34,11 @@ Aplicación web full-stack desarrollada con **Spring Boot 4.1.0** que permite a 
 - **Registro e Inicio de Sesión** -- Autenticación segura con Spring Security y BCrypt
 - **CRUD Completo de CVs** -- Crear, listar, editar y eliminar currículums
 - **Fotografía de Perfil** -- Subida de imágenes con previsualización en tiempo real (hasta 10MB)
-- **Entradas Dinámicas** -- Añadir/experiencias laborales y formación de forma dinámica desde el formulario
+- **Entradas Dinámicas** -- Añadir experiencias laborales y formación de forma dinámica
 - **Múltiples CVs** -- Cada usuario puede crear y gestionar varios CVs con nombres personalizados
+- **3 Plantillas de Diseño** -- Basic (clásica), Moderna (gradientes púrpura) y Minimalista (limpia)
 - **Vista Previa Profesional** -- Plantilla HTML de dos columnas optimizada para impresión
-- **Generación de PDF** -- Descarga del CV en formato PDF con un solo clic
+- **Generación de PDF** -- Descarga del CV en formato PDF con un solo clic, respetando la plantilla elegida
 - **Aislamiento de Datos** -- Cada usuario solo accede a sus propios CVs
 
 ---
@@ -128,6 +137,7 @@ http://localhost:8090
 3. Completa los campos de **Datos Personales**:
    - Nombre completo
    - Nombre del CV (ej: "CV para Desarrollador Backend")
+   - **Selecciona una plantilla** (Basic, Moderna o Minimalista)
    - Título profesional
    - Email, teléfono, dirección
    - Resumen profesional
@@ -140,25 +150,38 @@ http://localhost:8090
 
 1. Ve a **"Mis CVs"** desde la barra de navegación
 2. Haz clic en el botón **"Editar"** del CV que deseas modificar
-3. El formulario se carga con los datos existentes (incluida la foto)
-4. Realiza los cambios y haz clic en **"Guardar CV"**
+3. El formulario se carga con los datos existentes (incluida la foto y plantilla)
+4. Puedes cambiar la plantilla en cualquier momento
+5. Realiza los cambios y haz clic en **"Guardar CV"**
 
 ### Previsualizar un CV
 
 1. En la página **"Mis CVs"**, haz clic en **"Previsualizar"**
-2. Se abrirá una nueva pestaña con el CV formateado profesionalmente
+2. Se abrirá una nueva pestaña con el CV formateado según la plantilla elegida
 3. La plantilla incluye: foto, datos de contacto, perfil, experiencia y formación
 
 ### Descargar como PDF
 
 1. En la página **"Mis CVs"**, haz clic en **"PDF"**
-2. Se descargará automáticamente un archivo `cv_{id}.pdf`
+2. Se descargará automáticamente un archivo `cv_{id}.pdf` con el diseño de la plantilla seleccionada
 
 ### Eliminar un CV
 
 1. En la página **"Mis CVs"**, haz clic en **"Eliminar"**
 2. Confirma la eliminación en el diálogo de confirmación
 3. La foto asociada también se elimina del servidor
+
+---
+
+## Plantillas de CV
+
+| Plantilla | Estilo | Descripción |
+|-----------|--------|-------------|
+| **Basic** | Clásico | Fondo oscuro en cabecera, sidebar gris, diseño tradicional y profesional |
+| **Moderna** | Vibrante | Gradiente púrpura, badges redondeados, bordes laterales de color, sombras suaves |
+| **Minimalista** | Limpio | Blanco y gris, tipografía fina, mucho espacio en blanco, sin colores fuertes |
+
+Cada CV guarda la plantilla seleccionada. Al previsualizar o descargar el PDF, se renderiza automáticamente con el diseño correspondiente.
 
 ---
 
@@ -175,7 +198,7 @@ cv-generator/
 │   │   │   │   └── WebConfig.java                # Mapeo de recursos estáticos
 │   │   │   ├── controller/
 │   │   │   │   ├── AuthController.java           # Login, registro, dashboard
-│   │   │   │   └── CvController.java             # CRUD de CVs, PDF
+│   │   │   │   └── CvController.java             # CRUD de CVs, PDF, plantillas
 │   │   │   ├── dto/
 │   │   │   │   ├── CurriculumDto.java            # DTO para el formulario de CV
 │   │   │   │   ├── EducationDto.java             # DTO para educación
@@ -202,8 +225,12 @@ cv-generator/
 │   │           ├── login.html                    # Página de login
 │   │           ├── register.html                 # Página de registro
 │   │           ├── my-cvs.html                   # Listado de CVs
-│   │           └── cv-template.html              # Plantilla de vista previa/PDF
+│   │           ├── cv-template.html              # Plantilla Basic
+│   │           ├── cv-template-modern.html       # Plantilla Moderna
+│   │           └── cv-template-minimalist.html   # Plantilla Minimalista
 │   └── test/
+├── docs/
+│   └── images/                                   # Capturas de la aplicación
 ├── uploads/                                      # Archivos de fotos subidas
 ├── pom.xml                                       # Dependencias Maven
 └── README.md
@@ -214,32 +241,32 @@ cv-generator/
 ## Modelado de Datos
 
 ```
-┌──────────┐       ┌──────────────┐       ┌─────────────┐
-│   User   │ 1───N │  Curriculum  │ 1───N │  Experience │
-│          │       │              │       │             │
-│ id       │       │ id           │       │ id          │
-│ email    │       │ fullName     │       │ company     │
-│ password │       │ cvName       │       │ position    │
-│ roles    │       │ jobTitle     │       │ startDate   │
-│ enabled  │       │ email        │       │ endDate     │
-│          │       │ phone        │       │ description │
-│          │       │ address      │       └─────────────┘
-│          │       │ summary      │
-│          │       │ photoUrl     │       ┌─────────────┐
-│          │       │ createdAt    │ 1───N │  Education  │
-│          │       │ user_id (FK) │       │             │
-└──────────┘       └──────────────┘       │ id          │
-                                          │ institution │
-                                          │ degree      │
-                                          │ year        │
-                                          └─────────────┘
+┌──────────┐       ┌──────────────────┐       ┌─────────────┐
+│   User   │ 1───N │    Curriculum    │ 1───N │  Experience │
+│          │       │                  │       │             │
+│ id       │       │ id               │       │ id          │
+│ email    │       │ fullName         │       │ company     │
+│ password │       │ cvName           │       │ position    │
+│ roles    │       │ templateName     │       │ startDate   │
+│ enabled  │       │ jobTitle         │       │ endDate     │
+│          │       │ email            │       │ description │
+│          │       │ phone            │       └─────────────┘
+│          │       │ address          │
+│          │       │ summary          │       ┌─────────────┐
+│          │       │ photoUrl         │ 1───N │  Education  │
+│          │       │ createdAt        │       │             │
+│          │       │ user_id (FK)     │       │ id          │
+└──────────┘       └──────────────────┘       │ institution │
+                                              │ degree      │
+                                              │ year        │
+                                              └─────────────┘
 ```
 
 ---
 
 ## Guía de Aprendizaje: Spring Boot
 
-Este proyecto es una excellent referencia para aprender los conceptos fundamentales de Spring Boot. A continuación, se explica qué conceptos se practican y dónde encontrarlos en el código.
+Este proyecto es una excelente referencia para aprender los conceptos fundamentales de Spring Boot. A continuación, se explica qué conceptos se practican y dónde encontrarlos en el código.
 
 ### 1. Spring Security (Autenticación y Autorización)
 
@@ -282,7 +309,7 @@ Este proyecto es una excellent referencia para aprender los conceptos fundamenta
 | Iteración | `dashboard.html` | `th:each="exp, iter : *{experiences}"` |
 | Condicionales | `dashboard.html` | `th:if="${curriculumDto.photoUrl != null}"` |
 | URLs dinámicas | `dashboard.html` | `th:action="@{/save-cv}"`, `th:src="${curriculumDto.photoUrl}"` |
-| Fragmentos | `cv-template.html` | Plantilla completa de CV con diseño profesional |
+| Plantillas dinámicas | `CvController.java` | `resolveTemplateName()` para seleccionar plantilla según el CV |
 
 ### 5. DTO Pattern (Data Transfer Objects)
 
@@ -298,13 +325,14 @@ Este proyecto es una excellent referencia para aprender los conceptos fundamenta
 |----------|---------|-------------|
 | Thymeleaf → HTML | `CvController.downloadPDF()` | `SpringTemplateEngine.process()` para renderizar plantilla a String |
 | HTML → PDF | `CvController.downloadPDF()` | Flying Saucer `ITextRenderer` para conversión |
+| Rutas de archivo | `CvController.downloadPDF()` | `Paths.get().toUri()` para resolver imágenes a `file://` |
 | Streaming de archivos | `CvController.downloadPDF()` | `ResponseEntity<byte[]>` con headers de Content-Disposition |
 
 ### 7. Gestión de Archivos
 
 | Concepto | Archivo | Qué aprender |
 |----------|---------|-------------|
-| Subida de archivos | `CvController.java` | `MultipartFile.transferTo()` / `Files.write()` |
+| Subida de archivos | `CvController.java` | `MultipartFile` y `Files.write()` con rutas absolutas |
 | Rutas absolutas | `CvController.java` | `System.getProperty("user.dir")` para rutas relativas al proyecto |
 | Recursos estáticos | `WebConfig.java` | `ResourceHandlerRegistry` para mapear `/uploads/**` a carpeta física |
 | Limpieza de archivos | `CurriculumService.java` | `Files.deleteIfExists()` al editar o eliminar CVs |
@@ -323,8 +351,8 @@ Este proyecto es una excellent referencia para aprender los conceptos fundamenta
 | GET | `/my-cvs` | Listar CVs del usuario | Sí |
 | GET | `/edit-cv/{id}` | Cargar CV para editar | Sí |
 | GET | `/delete-cv/{id}` | Eliminar CV | Sí |
-| GET | `/preview-cv/{id}` | Vista previa del CV | Sí |
-| GET | `/download-pdf/{id}` | Descargar CV como PDF | Sí |
+| GET | `/preview-cv/{id}` | Vista previa del CV (plantilla dinámica) | Sí |
+| GET | `/download-pdf/{id}` | Descargar CV como PDF (plantilla dinámica) | Sí |
 | POST | `/logout` | Cerrar sesión | Sí |
 
 ---

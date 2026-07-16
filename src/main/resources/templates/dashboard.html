@@ -78,6 +78,14 @@
                             <input type="text" class="form-control" th:field="*{cvName}" placeholder="Ej: CV para desarrollador Java" required>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label fw-semibold"><i class="fas fa-palette me-1"></i>Plantilla del CV</label>
+                            <select class="form-select" th:field="*{templateName}">
+                                <option value="basic">Basic</option>
+                                <option value="modern">Moderna</option>
+                                <option value="minimalist">Minimalista</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label fw-semibold"><i class="fas fa-briefcase me-1"></i>Título profesional</label>
                             <input type="text" class="form-control" th:field="*{jobTitle}" placeholder="Ej: Desarrollador Full Stack">
                         </div>

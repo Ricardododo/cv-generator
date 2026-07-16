@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>CV - <span th:text="${curriculum.fullName}">Nombre</span></title>
+    <style>
+        @page {
+            margin: 0cm 0cm 0cm 0cm;
+            size: A4;
+        }
+
+        html, body {
+            background-color: #ffffff;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            -fs-color-adjust: exact !important;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff;
+            color: #2d3436;
+            font-size: 11pt;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .cv-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: none;
+            page-break-inside: avoid;
+            page-break-after: avoid;
+            overflow: hidden;
+        }
+
+        /* ===== CABECERA MODERNA ===== */
+        .cv-header {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe) !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            -fs-color-adjust: exact !important;
+            color: #ffffff !important;
+            padding: 30px 40px 25px 40px;
+            text-align: center;
+            display: block;
+        }
+
+        .cv-header h1 {
+            font-size: 26pt;
+            margin-bottom: 5px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #ffffff !important;
+            text-transform: uppercase;
+        }
+
+        .cv-header .job-title {
+            font-size: 14pt;
+            font-weight: 300;
+            color: #ffffff !important;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* ===== LAYOUT DOS COLUMNAS ===== */
+        .cv-row {
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+            page-break-inside: avoid;
+        }
+
+        .cv-sidebar {
+            display: table-cell;
+            width: 32%;
+            background-color: #f8f9ff;
+            padding: 20px 18px 20px 22px;
+            vertical-align: top;
+            border-right: 3px solid #6c5ce7;
+        }
+
+        .cv-main {
+            display: table-cell;
+            width: 68%;
+            padding: 20px 30px;
+            background-color: #ffffff;
+            vertical-align: top;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-section h3 {
+            font-size: 11pt;
+            font-weight: 700;
+            color: #6c5ce7;
+            border-bottom: none;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background-color: #ede8ff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .sidebar-section p,
+        .sidebar-section li {
+            font-size: 10pt;
+            margin-bottom: 4px;
+            color: #4a4a4a;
+        }
+
+        .sidebar-section .contact-item {
+            margin-bottom: 6px;
+            word-wrap: break-word;
+        }
+        .sidebar-section .contact-item strong {
+            font-weight: 600;
+            color: #6c5ce7;
+            white-space: nowrap;
+        }
+
+        /* Foto de perfil */
+        .profile-photo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-photo img {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 5px solid #6c5ce7;
+            object-fit: cover;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+        .profile-photo .no-photo {
+            display: inline-block;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background-color: #ede8ff;
+            color: #6c5ce7;
+            line-height: 130px;
+            text-align: center;
+            font-size: 11pt;
+            border: 5px solid #6c5ce7;
+        }
+
+        /* ===== COLUMNA PRINCIPAL ===== */
+        .main-section {
+            margin-bottom: 22px;
+            page-break-inside: avoid;
+        }
+
+        .main-section h2 {
+            font-size: 13pt;
+            font-weight: 700;
+            color: #ffffff;
+            background-color: #6c5ce7;
+            padding: 7px 15px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+
+        .main-section .summary-text {
+            text-align: justify;
+            font-size: 10.5pt;
+            line-height: 1.6;
+        }
+
+        .entry {
+            margin-bottom: 14px;
+            page-break-inside: avoid;
+            padding-left: 12px;
+            border-left: 3px solid #d5d0ff;
+        }
+
+        .entry-header {
+            display: block;
+            margin-bottom: 3px;
+            overflow: hidden;
+        }
+
+        .entry-header .entry-title {
+            font-weight: 700;
+            font-size: 11.5pt;
+            color: #2d3436;
+        }
+
+        .entry-header .entry-company {
+            font-weight: 600;
+            color: #6c5ce7;
+        }
+
+        .entry-header .entry-date {
+            float: right;
+            font-size: 9.5pt;
+            color: #999;
+            font-weight: 400;
+            background-color: #f0eeff;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .entry-description {
+            font-size: 10pt;
+            text-align: justify;
+            margin-top: 3px;
+            color: #555;
+        }
+
+        /* ===== PIE DE PÁGINA ===== */
+        .cv-footer {
+            background-color: #f8f9ff;
+            padding: 10px 30px;
+            font-size: 8.5pt;
+            color: #999;
+            text-align: center;
+            border-top: 2px solid #6c5ce7;
+            clear: both;
+        }
+    </style>
+</head>
+<body>
+<div class="cv-container">
+
+    <header class="cv-header">
+        <h1 th:text="${curriculum.fullName}">Nombre Apellido</h1>
+        <div class="job-title" th:text="${curriculum.jobTitle}">Desarrollador Senior</div>
+    </header>
+
+    <div class="cv-row">
+        <aside class="cv-sidebar">
+            <div class="profile-photo">
+                <img th:if="${curriculum.photoUrl != null and curriculum.photoUrl != ''}"
+                     th:src="${curriculum.photoUrl}" alt="Foto de perfil" />
+                <span th:if="${curriculum.photoUrl == null or curriculum.photoUrl == ''}"
+                      class="no-photo">Sin foto</span>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Contacto</h3>
+                <div class="contact-item"><strong>Email:</strong> <span th:text="${curriculum.email}">email@ejemplo.com</span></div>
+                <div class="contact-item"><strong>Teléfono:</strong> <span th:text="${curriculum.phone}">+34 600 000 000</span></div>
+                <div class="contact-item"><strong>Dirección:</strong> <span th:text="${curriculum.address}">C/ Ejemplo 1</span></div>
+            </div>
+        </aside>
+
+        <main class="cv-main">
+            <section class="main-section">
+                <h2>Perfil profesional</h2>
+                <div class="summary-text" th:text="${curriculum.summary}">Descripción del perfil profesional...</div>
+            </section>
+
+            <section class="main-section" th:if="${curriculum.experiences != null and !curriculum.experiences.isEmpty()}">
+                <h2>Experiencia laboral</h2>
+                <div class="entry" th:each="exp : ${curriculum.experiences}">
+                    <div class="entry-header">
+                        <span class="entry-title" th:text="${exp.position}">Puesto</span>
+                        <span class="entry-company" th:text="' | ' + ${exp.company}">Empresa</span>
+                        <span class="entry-date" th:text="${exp.startDate} + ' - ' + ${exp.endDate}" th:if="${exp.startDate != null and exp.endDate != null}"></span>
+                        <span class="entry-date" th:text="${exp.startDate} + ' - Actualidad'" th:if="${exp.startDate != null and exp.endDate == null}"></span>
+                    </div>
+                    <div class="entry-description" th:text="${exp.description}">Descripción...</div>
+                </div>
+            </section>
+
+            <section class="main-section" th:if="${curriculum.educations != null and !curriculum.educations.isEmpty()}">
+                <h2>Formación académica</h2>
+                <div class="entry" th:each="edu : ${curriculum.educations}">
+                    <div class="entry-header">
+                        <span class="entry-title" th:text="${edu.degree}">Grado</span>
+                        <span class="entry-company" th:text="' | ' + ${edu.institution}">Universidad</span>
+                        <span class="entry-date" th:text="${edu.year}">2020</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="cv-footer">
+        <span>CV generado desde cv-generator</span>
+        <span th:if="${curriculum.cvName}" th:text="' | ' + ${curriculum.cvName}"> | Mi CV</span>
+    </div>
+</div>
+</body>
+</html>

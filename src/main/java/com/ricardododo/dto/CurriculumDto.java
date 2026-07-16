@@ -23,6 +23,7 @@ public class CurriculumDto {
     private String summary;
     private String photoUrl;
     private MultipartFile photoFile;
+    private String templateName;
 
     //Inicializar las listas para que Spring pueda mapear los campos
     List<ExperienceDto> experiences =  new ArrayList<>();

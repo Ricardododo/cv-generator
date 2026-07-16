@@ -113,6 +113,7 @@ public class CvController {
         dto.setAddress(curriculum.getAddress());
         dto.setSummary(curriculum.getSummary());
         dto.setPhotoUrl(curriculum.getPhotoUrl());
+        dto.setTemplateName(curriculum.getTemplateName());
         // Mapear listas
         if (curriculum.getExperiences() != null) {
             List<ExperienceDto> expDtos = curriculum.getExperiences().stream()
@@ -157,15 +158,20 @@ public class CvController {
 
     @GetMapping("/preview-cv/{id}")
     public String previewCv(@PathVariable Long id, Authentication auth, Model model){
-        //obtener email del usuario autenticado
         String userEmail = auth.getName();
-        //recuperar el CV usando el servicio
         Curriculum curriculum = curriculumService.getCurriculumByIdAndUser(id, userEmail)
                 .orElseThrow(() -> new RuntimeException("CV no encontrado con ID: " + id +
                         " para este usuario"));
-        //agregar el curriculum al modelo
         model.addAttribute("curriculum", curriculum);
-        //devolver la vista a la plantilla
+        return resolveTemplateName(curriculum.getTemplateName());
+    }
+
+    private String resolveTemplateName(String templateName) {
+        if ("modern".equals(templateName)) {
+            return "cv-template-modern";
+        } else if ("minimalist".equals(templateName)) {
+            return "cv-template-minimalist";
+        }
         return "cv-template";
     }
 
@@ -188,7 +194,8 @@ public class CvController {
         // Procesar la plantilla Thymeleaf
         Context context = new Context();
         context.setVariable("curriculum", curriculum);
-        String htmlContent = templateEngine.process("cv-template", context);
+        String templateFile = resolveTemplateName(curriculum.getTemplateName());
+        String htmlContent = templateEngine.process(templateFile, context);
 
         // Convertir HTML a PDF
         ByteArrayOutputStream pdfStream = new ByteArrayOutputStream();

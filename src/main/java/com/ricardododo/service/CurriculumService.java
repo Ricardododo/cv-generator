@@ -88,7 +88,8 @@ public class CurriculumService {
         curriculum.setPhone(dto.getPhone());
         curriculum.setAddress(dto.getAddress());
         curriculum.setSummary(dto.getSummary());
-        curriculum.setPhotoUrl(dto.getPhotoUrl()); // <-- Asignar la URL (puede ser nueva o existente)
+        curriculum.setPhotoUrl(dto.getPhotoUrl());
+        curriculum.setTemplateName(dto.getTemplateName());
 
         // Procesar experiencias
         if (dto.getExperiences() != null) {
